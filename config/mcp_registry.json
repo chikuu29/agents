@@ -1,0 +1,16 @@
+{
+  "servers": {
+    "pdf_mcp": {
+      "cmd": ["python", "mcp_servers/pdf_mcp.py"],
+      "env": {}
+    },
+    "file_mcp": {
+      "cmd": ["python", "mcp_servers/file_mcp.py"],
+      "env": {}
+    },
+    "web_mcp": {
+      "cmd": ["python", "mcp_servers/web_mcp.py"],
+      "env": {}
+    }
+  }
+}
