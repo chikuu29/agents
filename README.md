@@ -1,17 +1,26 @@
+
+
+
+
 agent/
-├── core/
-│   ├── orchestrator.py      # main loop, context, LLM call
-│   ├── skill_router.py      # scoring & dispatch
-│   ├── sub_agent.py         # spawn / join sub-agents
-│   └── context_store.py     # short + long-term memory
 ├── skills/
-│   ├── base_skill.py        # abstract Skill class
-│   ├── code_skill.py
-│   ├── data_skill.py
-│   └── web_skill.py
-├── mcp/
-│   ├── dispatcher.py        # JSON-RPC builder + caller
-│   ├── registry.py          # MCP server manifest store
-│   ├── stdio_transport.py   # subprocess MCP transport
-│   └── sse_transport.py     # HTTP SSE transport
+│   ├── code/
+│   │   └── SKILL.md
+│   ├── data/
+│   │   └── SKILL.md
+│   ├── web/
+│   │   └── SKILL.md
+│   └── file/
+│       └── SKILL.md
+├── mcp_servers/
+│   ├── file_mcp.py
+│   └── db_mcp.py
+├── core/
+│   ├── skill_loader.py
+│   ├── skill_registry.py
+│   ├── orchestrator.py
+│   ├── mcp_dispatcher.py
+│   └── sub_agent.py
+├── config/
+│   └── mcp_registry.json
 └── main.py
