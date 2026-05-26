@@ -1,6 +1,12 @@
 
 
-
+Librariesanthropic       # async client built-in
+aiosqlite       # async SQLite
+chromadb        # has AsyncHttpClient / AsyncEphemeralClient
+aiofiles        # async file I/O for SKILL.md patching
+pyyaml          # frontmatter parse (sync is fine, done once at startup)
+httpx           # async HTTP for SSE MCP transport
+pydantic        # schema validation
 
 agent/
 ├── skills/
