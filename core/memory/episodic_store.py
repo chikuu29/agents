@@ -18,8 +18,12 @@ class EpisodicStore:
         self.db_path = db_path
 
     async def init(self):
+        # Ensure the directory for the DB exists
+        import os
+        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
         async with aiosqlite.connect(self.db_path) as db:
-            await db.execute("""
+            await db.execute(
+                """
                 CREATE TABLE IF NOT EXISTS episodes (
                     id          INTEGER PRIMARY KEY AUTOINCREMENT,
                     created_at  TEXT,
@@ -30,7 +34,8 @@ class EpisodicStore:
                     result_summary TEXT,
                     lessons     TEXT
                 )
-            """)
+                """
+            )
             await db.execute(
                 "CREATE INDEX IF NOT EXISTS idx_intent ON episodes(intent)"
             )

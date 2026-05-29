@@ -16,7 +16,7 @@ from core.memory.semantic_store  import SemanticStore
 from core.memory.procedural_store import ProceduralStore
 from core.brain        import Brain
 from core.reflection   import ReflectionEngine
-from core.skill_loader import load_skills_async
+from core.skill_loader import load_skills
 from core.skill_registry import AsyncSkillRegistry
 from core.mcp_dispatcher import AsyncMCPDispatcher
 from core.orchestrator  import AsyncOrchestrator
@@ -40,7 +40,7 @@ async def build_agent(settings: Settings) -> AsyncOrchestrator:
     await brain.init()
 
     # Skills
-    skills   = await load_skills_async(settings.skills_dir)
+    skills   = await load_skills(settings.skills_dir)
     registry = AsyncSkillRegistry(skills)
 
     # MCP
@@ -80,7 +80,7 @@ async def main():
 
     agent = await build_agent(settings)
 
-    print(f"\n🤖 Agent ready! (LLM: {settings.llm_provider}/{settings.llm_model})")
+    print(f"\nAgent ready! (LLM: {settings.llm_provider}/{settings.llm_model})")
     print("Type 'quit' or 'exit' to stop.\n")
 
     while True:

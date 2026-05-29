@@ -107,6 +107,16 @@ async def load_skills(skill_dir: str = "skills") -> List[SkillManifest]:
     return await asyncio.to_thread(_load_sync)
 
 
+# Async wrapper for backward compatibility
+async def load_skills_async(skill_dir: str = "skills") -> List[SkillManifest]:
+    """Compatibility wrapper returning the same as load_skills.
+
+    Some code (e.g., older modules) may still import `load_skills_async`.
+    This function simply forwards to the newer `load_skills` implementation.
+    """
+    return await load_skills(skill_dir)
+
+
 if __name__ == "__main__":
     import pprint
     # Async wrapper for load_skills

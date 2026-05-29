@@ -5,19 +5,20 @@ from chromadb.config import Settings
 
 class SemanticStore:
     def __init__(self, persist_dir: str = "brain/chroma"):
-        # AsyncHttpClient if you run chroma as a server,
-        # or PersistentClient wrapped in run_in_executor for local
-        self._client = chromadb.AsyncHttpClient(
-            host="localhost", port=8000,
-            settings=Settings(anonymized_telemetry=False),
-        )
+        # Store the persistence path; client will be created in async init
+        self.persist_dir = persist_dir
+        self._client = None  # Will be set in async init
         self._col = None
 
     async def init(self):
-        self._col = await self._client.get_or_create_collection(
+        # Initialize a persistent client in a background thread to avoid blocking the event loop
+        import asyncio
+        self._client = await asyncio.to_thread(lambda: chromadb.PersistentClient(path=self.persist_dir))
+        # get_or_create_collection is also synchronous, wrap it similarly
+        self._col = await asyncio.to_thread(lambda: self._client.get_or_create_collection(
             "agent_knowledge",
             metadata={"hnsw:space": "cosine"},
-        )
+        ))
 
     async def write(self, text: str, metadata: dict):
         await self._col.add(
