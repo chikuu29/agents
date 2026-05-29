@@ -6,6 +6,7 @@ from dataclasses import dataclass,field
 from typing import Dict,List,Optional,Any
 from pathlib import Path
 import logging
+import asyncio
 
 
 logger = logging.getLogger(__name__)
@@ -62,44 +63,53 @@ def _parse_frontmatter(text: str) -> dict:
         return data
 
 
-def load_skills(skill_dir: str = "skills") -> List[SkillManifest]:
-    skills = []
-    for md_file in Path(skill_dir).rglob("SKILL.md"):
-        try:
-            text = md_file.read_text(encoding="utf-8")
-            metadata = _parse_frontmatter(text)
-            print(f"metadata: {metadata}")
-            if not metadata:
-                logger.warning(f"Could not parse frontmatter in {md_file}")
-                continue
-            
-            # Extract fields with safe fallbacks
-            name = metadata.get("name", md_file.parent.name)
-            description = metadata.get("description", "")
-            
-            triggers = metadata.get("triggers", [])
-            if isinstance(triggers, str):
-                triggers = [triggers]
-                
-            mcp_servers = metadata.get("mcp_servers", [])
-            if isinstance(mcp_servers, str):
-                mcp_servers = [mcp_servers]
+async def load_skills(skill_dir: str = "skills") -> List[SkillManifest]:
+    """Asynchronously load skill manifests.
 
-            # Create manifest
-            skills.append(SkillManifest(
-                name=name,
-                description=description,
-                triggers=list(triggers),
-                mcp_servers=list(mcp_servers),
-                md_path=md_file,
-                full_content=text
-            ))
-        except Exception as e:
-            logger.error(f"Error loading skill from {md_file}: {e}")
-            
-    return skills
+    The heavy I/O work is delegated to a thread pool via ``asyncio.to_thread``
+    so callers can ``await`` this function without blocking the event loop.
+    """
+    def _load_sync() -> List[SkillManifest]:
+        skills: List[SkillManifest] = []
+        for md_file in Path(skill_dir).rglob("SKILL.md"):
+            try:
+                text = md_file.read_text(encoding="utf-8")
+                metadata = _parse_frontmatter(text)
+                if not metadata:
+                    logger.warning(f"Could not parse frontmatter in {md_file}")
+                    continue
+                
+                # Extract fields with safe fallbacks
+                name = metadata.get("name", md_file.parent.name)
+                description = metadata.get("description", "")
+                
+                triggers = metadata.get("triggers", [])
+                if isinstance(triggers, str):
+                    triggers = [triggers]
+                    
+                mcp_servers = metadata.get("mcp_servers", [])
+                if isinstance(mcp_servers, str):
+                    mcp_servers = [mcp_servers]
+
+                # Create manifest
+                skills.append(SkillManifest(
+                    name=name,
+                    description=description,
+                    triggers=list(triggers),
+                    mcp_servers=list(mcp_servers),
+                    md_path=md_file,
+                    full_content=text
+                ))
+            except Exception as e:
+                logger.error(f"Error loading skill from {md_file}: {e}")
+                
+        return skills
+    return await asyncio.to_thread(_load_sync)
 
 
 if __name__ == "__main__":
     import pprint
-    pprint.pprint(load_skills("skills"))
+    # Async wrapper for load_skills
+    async def main():
+        pprint.pprint(await load_skills("skills"))
+    asyncio.run(main())
