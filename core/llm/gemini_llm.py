@@ -126,6 +126,7 @@ class GeminiLLM(BaseLLM):
             contents=gemini_contents,
             config=config,
         )
+        print("=== LLM RESPONSE ===",response)
 
         # Parse response
         text = None

@@ -21,14 +21,16 @@ class SemanticStore:
         ))
 
     async def write(self, text: str, metadata: dict):
-        await self._col.add(
+        import asyncio
+        await asyncio.to_thread(self._col.add,
             documents=[text],
             metadatas=[metadata],
             ids=[str(uuid.uuid4())],
         )
 
     async def search(self, query: str, n: int = 4) -> list[dict]:
-        results = await self._col.query(
+        import asyncio
+        results = await asyncio.to_thread(self._col.query,
             query_texts=[query],
             n_results=n,
         )
